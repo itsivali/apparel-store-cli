@@ -1,41 +1,35 @@
-# suppliers.py
-
 import sqlite3
-from sqlite3 import Error
 
-# Function to create suppliers table (if not exists)
-def create_suppliers_table(conn):
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS suppliers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            contact TEXT NOT NULL
-        )
-    ''')
+def add_supplier(conn, name, phone):
+    sql = '''INSERT INTO suppliers(name, phone) VALUES(?, ?)'''
+    cur = conn.cursor()
+    cur.execute(sql, (name, phone))
     conn.commit()
 
-# Function to add a new supplier
-def add_supplier(conn, name, contact):
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO suppliers (name, contact) VALUES (?, ?)", (name, contact))
+def update_supplier(conn, id, name, phone):
+    sql = '''UPDATE suppliers SET name = ?, phone = ? WHERE id = ?'''
+    cur = conn.cursor()
+    cur.execute(sql, (name, phone, id))
     conn.commit()
-    print("Supplier added successfully.")
 
-# Function to fetch all suppliers
-def get_suppliers(conn):
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, name FROM suppliers")
-    return cursor.fetchall()
+def list_suppliers(conn):
+    sql = '''SELECT * FROM suppliers'''
+    cur = conn.cursor()
+    cur.execute(sql)
+    rows = cur.fetchall()
+    for row in rows:
+        print(row)
 
-# Function to search and display all suppliers
 def search_suppliers(conn):
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM suppliers")
-    rows = cursor.fetchall()
-    if rows:
-        print("Suppliers:")
-        for row in rows:
-            print(f"ID: {row[0]}, Name: {row[1]}, Contact: {row[2]}")
-    else:
-        print("No suppliers found.")
+    sql = '''SELECT * FROM suppliers'''
+    cur = conn.cursor()
+    cur.execute(sql)
+    rows = cur.fetchall()
+    for row in rows:
+        print(row)
+
+def delete_supplier(conn, id):
+    sql = '''DELETE FROM suppliers WHERE id = ?'''
+    cur = conn.cursor()
+    cur.execute(sql, (id,))
+    conn

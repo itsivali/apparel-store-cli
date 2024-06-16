@@ -8,7 +8,7 @@ Setup
 Clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/itsivali/apparel-store-cli.git
+git clone https://github.com//apparel-store-cli.git
 cd apparel-store-cli
 ```
 ## Install dependencies:
