@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-
+# cli.py
 import click
 from database import create_connection, initialize_database 
 import customers
@@ -15,7 +14,6 @@ def cli():
     """
     pass
 
-# Function to initialize database
 def initialize_database_on_startup():
     """ Initialize the database with necessary tables """
     conn = create_connection()
@@ -26,23 +24,19 @@ def initialize_database_on_startup():
         click.echo("Error! Cannot establish database connection.")
         raise click.Abort()
 
-# Call initialize_database_on_startup() when the script runs
 initialize_database_on_startup()
 
-# Validate email format using regex
 def validate_email(ctx, param, value):
     if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
         raise click.BadParameter('Invalid email format. Please provide a valid email address.')
     return value
 
-# Validate phone number as integer
 def validate_phone(ctx, param, value):
     try:
         return int(value)
     except ValueError:
         raise click.BadParameter('Phone number must be numeric.')
 
-# Add, update, list, search, and delete customers
 @cli.command()
 @click.option('--name', prompt='Customer name', help='Name of the customer')
 @click.option('--email', prompt='Customer email', help='Email of the customer', callback=validate_email)
@@ -92,7 +86,6 @@ def delete_customer():
             click.echo("No customers found.")
             return
 
-        # Display customer options to the user
         click.echo("Select customer to delete:")
         for idx, customer in enumerate(customer_options, start=1):
             click.echo(f"{idx}. ID: {customer[0]}, Name: {customer[1]}")
@@ -108,7 +101,6 @@ def delete_customer():
         customers.delete_customer(conn, customer_id)
         conn.close()
 
-# Add, update, list, search, and delete products
 @cli.command()
 @click.option('--name', prompt='Product name', help='Name of the product')
 @click.option('--price', prompt='Product price', type=float, help='Price of the product')
@@ -122,7 +114,6 @@ def add_product(name, price):
             click.echo("No suppliers found. Please add suppliers first.")
             return
 
-        # Display supplier options to the user
         click.echo("Select supplier:")
         for idx, supplier in enumerate(suppliers_options, start=1):
             click.echo(f"{idx}. {supplier[1]}")
@@ -175,7 +166,6 @@ def delete_product():
             click.echo("No products found.")
             return
 
-        # Display product options to the user
         click.echo("Select product to delete:")
         for idx, product in enumerate(product_options, start=1):
             click.echo(f"{idx}. ID: {product[0]}, Name: {product[1]}")
@@ -191,7 +181,6 @@ def delete_product():
         products.delete_product(conn, product_id)
         conn.close()
 
-# Add, update, list, search, and delete suppliers
 @cli.command()
 @click.option('--name', prompt='Enter the name of a supplier', help='Name of the supplier')
 @click.option('--phone', prompt='Supplier phone number', help='Phone number of the supplier', callback=validate_phone)
@@ -239,7 +228,6 @@ def delete_supplier():
             click.echo("No suppliers found.")
             return
 
-        # Display supplier options to the user
         click.echo("Select supplier to delete:")
         for idx, supplier in enumerate(supplier_options, start=1):
             click.echo(f"{idx}. ID: {supplier[0]}, Name: {supplier[1]}")
@@ -255,48 +243,21 @@ def delete_supplier():
         suppliers.delete_supplier(conn, supplier_id)
         conn.close()
 
-# Add, update, list, search, and delete orders
 @cli.command()
-@click.option('--order_date', prompt='Order date', help='Date of the order (YYYY-MM-DD)')
-def add_order(order_date):
+@click.option('--customer_id', prompt='Customer ID', type=int, help='ID of the customer placing the order')
+@click.option('--product_id', prompt='Product ID', type=int, help='ID of the product being ordered')
+@click.option('--quantity', prompt='Order quantity', type=int, help='Quantity of the product ordered')
+@click.option('--order_date', prompt='Order date (YYYY-MM-DD)', help='Date of the order')
+def add_order(customer_id, product_id, quantity, order_date):
     """ Add a new order to the database """
     conn = create_connection()
     if conn:
-        products_options = products.get_products(conn)  # Fetch products
-        customers_options = customers.get_customers(conn)  # Fetch customers
-
-        if not products_options:
-            click.echo("No products found. Please add products first.")
-            return
-
-        if not customers_options:
-            click.echo("No customers found. Please add customers first.")
-            return
-
-        # Display options to the user
-        click.echo("Select product:")
-        for idx, product in enumerate(products_options, start=1):
-            click.echo(f"{idx}. {product[1]}")
-
-        product_choice = click.prompt("Enter product number", type=int)
-
-        click.echo("Select customer:")
-        for idx, customer in enumerate(customers_options, start=1):
-            click.echo(f"{idx}. {customer[1]}")
-
-        customer_choice = click.prompt("Enter customer number", type=int)
-
-        # Example: Hardcoded supplier_id for demonstration
-        supplier_id = 1
-
-        # Add order to the database
-        orders.add_order(conn, customers_options[customer_choice - 1][0], products_options[product_choice - 1][0], supplier_id, order_date)
-        
+        orders.add_order(conn, customer_id, product_id, quantity, order_date)
         conn.close()
 
 @cli.command()
 @click.option('--id', prompt='Order ID', type=int, help='ID of the order to update')
-@click.option('--order_date', prompt='New order date', help='New date of the order (YYYY-MM-DD)')
+@click.option('--order_date', prompt='New order date (YYYY-MM-DD)', help='New date of the order')
 def update_order(id, order_date):
     """ Update an existing order in the database """
     conn = create_connection()
@@ -330,7 +291,6 @@ def delete_order():
             click.echo("No orders found.")
             return
 
-        # Display order options to the user
         click.echo("Select order to delete:")
         for idx, order in enumerate(order_options, start=1):
             click.echo(f"{idx}. ID: {order[0]}, Order Date: {order[4]}")
@@ -346,5 +306,5 @@ def delete_order():
         orders.delete_order(conn, order_id)
         conn.close()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

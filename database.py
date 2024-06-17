@@ -58,7 +58,7 @@ def create_suppliers_table(conn):
         c.execute('''CREATE TABLE IF NOT EXISTS suppliers
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
                      name TEXT NOT NULL,
-                     contact TEXT NOT NULL)''')
+                     phone TEXT NOT NULL)''')
     except Error as e:
         print(e)
 
